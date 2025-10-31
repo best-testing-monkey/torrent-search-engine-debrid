@@ -12,6 +12,13 @@ You can add websites to scrape by providing a configuration file (see ... on how
 ## Requirements
 This library requires python 3.5 or higher.
 
+## Installation
+You can install this library from Github using this command:
+
+```
+$ pip install git+https://github.com/best-testing-monkey/torrent-search-engine-debrid
+```
+
 ## Example
 
 ```python

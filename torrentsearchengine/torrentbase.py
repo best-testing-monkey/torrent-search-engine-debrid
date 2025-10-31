@@ -223,21 +223,21 @@ if __name__ == "__main__":
 class TorrentBase(dict[str, object]):
     """
     Represents a torrent with metadata and download capabilities.
-    
+
     This class extends dict to store torrent metadata while providing
     convenient property access and methods for torrent operations.
     It integrates with Real-Debrid API for premium downloading capabilities.
-    
+
     Attributes:
         name (str): Name/title of the torrent
         data (dict): Raw torrent metadata
         id (str): Unique identifier for the torrent
         RD: Real-Debrid API client instance
-    
+
     Required Initialization Arguments:
         provider (TorrentProvider): The torrent provider/source
         name (str): Torrent name (or info.filename, filename, title)
-    
+
     Optional Arguments:
         url (str): Info page URL for this torrent
         size (str): Human-readable size (e.g., "1.2 GB")
@@ -246,7 +246,7 @@ class TorrentBase(dict[str, object]):
         magnet (str): Magnet link
         hash (str): Torrent hash
         info (dict): Additional torrent information
-    
+
     Example:
         >>> torrent = TorrentBase(
         ...     provider=my_provider,
@@ -262,17 +262,17 @@ class TorrentBase(dict[str, object]):
     def __init__(self, **kwargs: dict):
         """
         Initialize a torrent object with metadata.
-        
+
         Processes and validates torrent metadata, handling various formats
         and automatically extracting information from different sources.
-        
+
         Args:
             **kwargs: Torrent metadata with the following supported keys:
-                
+
                 Required:
                     provider (TorrentProvider): Source provider for this torrent
                     name (str): Torrent name (fallbacks: info.filename, filename, title)
-                    
+
                 Optional:
                     url (str): Info page URL for detailed torrent information
                     size (str): Human-readable size string (e.g., "1.5 GB")
@@ -282,28 +282,28 @@ class TorrentBase(dict[str, object]):
                     hash (str): Torrent hash (extracted from magnet if not provided)
                     info (dict): Additional torrent metadata
                     id (str): Unique torrent identifier
-                    
+
         Raises:
             ValueError: If required parameters (provider, name) are missing
-            
+
         Note:
             - Automatically generates magnet links from hash values
             - Extracts hash from magnet links if hash not provided
             - Handles multiple naming conventions for torrent titles
             - Sanitizes magnet links for compatibility
-            
+
         Example:
             >>> # Minimal torrent
             >>> torrent = TorrentBase(
             ...     provider=provider_instance,
             ...     name="My Torrent"
             ... )
-            >>> 
+            >>>
             >>> # Full metadata
             >>> torrent = TorrentBase(
             ...     provider=provider_instance,
             ...     name="Ubuntu 22.04 Desktop",
-            ...     size="3.4 GB", 
+            ...     size="3.4 GB",
             ...     seeds=250,
             ...     leeches=15,
             ...     magnet="magnet:?xt=urn:btih:abcd1234...",
@@ -338,12 +338,6 @@ class TorrentBase(dict[str, object]):
             kwargs["name"] = kwargs['title']
 
         if not kwargs.get("name"):
-            raise ValueError("name or info.filename is required")
-
-        if 'magnet' in kwargs and '&' in kwargs['magnet']:
-            magnetLink = str(kwargs['magnet'])
-            # magnetLink = magnetLink.split("&")[0]
-            kwargs['magnet'] = magnetLink
 
         if 'hash' not in kwargs and 'magnet' in kwargs:
             magnetLink = str(kwargs['magnet'])
@@ -353,31 +347,8 @@ class TorrentBase(dict[str, object]):
 
         self.name = kwargs.get("name")
         self.data = kwargs
-        # self.id = simple_hash(str(self.provider.name) + ";" + self.name)
-        if 'id' in kwargs:
-            self.id = kwargs['id']
-        for key in kwargs.keys():
-            self[key] = kwargs[key]
-        if "info" in self.keys() and "title" in self['info'].keys() and "filename" not in self['info'].keys():
-            self["info"]["filename"] = self["info"]["title"]
-
-        if "magnet" not in self.keys() and "hash" in self.keys():
-            magnetHash = self["hash"]
-            magnetUrl = "magnet:?xt=urn:btih:" + magnetHash
-            self["magnet"] = magnetUrl
-
-        if "info" in self.keys() and "magnet" not in self.keys():
-            torrent_info = self["info"]
-            if "hash" in torrent_info.keys():
-                magnetHash = torrent_info["hash"]
-                magnetUrl = "magnet:?xt=urn:btih:" + magnetHash
-                self["magnet"] = magnetUrl
-            if "magnet" in torrent_info.keys():
-                self["magnet"] = torrent_info["magnet"]
 
     @property
-    def provider(self) -> TorrentProvider:
-        return TorrentProvider(self.data.get("provider"))
 
     @property
     def name(self):
@@ -428,28 +399,28 @@ class TorrentBase(dict[str, object]):
     def fetch_details(self, timeout: int = 30):
         """
         Fetch detailed information about this torrent from the provider.
-        
+
         Retrieves additional metadata such as file lists, descriptions,
         direct download links, and other detailed information that may
         not be available in initial search results.
-        
+
         Args:
             timeout: Request timeout in seconds (default: 30)
-            
+
         Returns:
             TorrentBase: Returns self with updated metadata
-            
+
         Raises:
             ValueError: If required properties are missing
             requests.RequestException: If network request fails
             requests.Timeout: If request exceeds timeout duration
-            
+
         Note:
             - Updates the current object with fetched details
             - May include file lists, descriptions, trackers, etc.
             - Information available depends on the torrent provider
             - Some providers may require additional authentication
-            
+
         Example:
             >>> torrent = TorrentBase(provider=provider, name="Movie")
             >>> detailed = torrent.fetch_details(timeout=60)
@@ -502,10 +473,10 @@ class TorrentBase(dict[str, object]):
     def asdict(self) -> dict:
         """
         Convert torrent to a dictionary with all available metadata.
-        
+
         Returns:
             dict: Complete torrent metadata including all properties
-            
+
         Example:
             >>> torrent_dict = torrent.asdict()
             >>> print(json.dumps(torrent_dict, indent=2))
@@ -522,25 +493,25 @@ class TorrentBase(dict[str, object]):
     def updateInfo(self):
         """
         Update torrent information from Real-Debrid API.
-        
+
         Fetches the latest status, progress, and metadata for this torrent
         from Real-Debrid. This includes download status, file information,
         seeder counts, and other dynamic data.
-        
+
         Note:
             - Requires a Real-Debrid API client and torrent ID
             - Updates self['info'] with current torrent status
             - Ensures required info fields exist with default values
             - Handles API errors gracefully by setting info to None
             - Should be called periodically to track download progress
-            
+
         Info Fields Updated:
             - seeders: Number of available seeders
             - filename: Primary file name
             - status: Download status (waiting, downloading, downloaded, error)
             - progress: Download progress percentage (0-100)
             - id: Real-Debrid torrent identifier
-            
+
         Example:
             >>> torrent.startDebridDownload()
             >>> # Wait some time...
@@ -592,26 +563,26 @@ class TorrentBase(dict[str, object]):
     def startDebridDownload(self):
         """
         Start a premium download using Real-Debrid service.
-        
+
         Initiates a download through Real-Debrid's premium torrent service,
         which provides fast, cached downloads without needing to seed.
         This method adds the torrent to Real-Debrid and selects all files
         for download.
-        
+
         Note:
             - Requires a configured Real-Debrid API client
             - Automatically selects all files in the torrent
             - Updates the torrent's info with download status
             - Handles errors gracefully by marking torrent status
             - Skips if download already started or completed
-            
+
         Side Effects:
             - Updates self['info'] with Real-Debrid response
             - Sets self['id'] with Real-Debrid torrent ID
             - Calls updateInfo() to refresh status
-            
+
         Example:
-            >>> torrent = TorrentBase(provider=provider, name="Linux ISO", 
+            >>> torrent = TorrentBase(provider=provider, name="Linux ISO",
             ...                      magnet="magnet:?xt=urn:btih:...")
             >>> torrent.startDebridDownload()
             >>> # Check status
@@ -651,15 +622,15 @@ class TorrentBase(dict[str, object]):
     def removeTorrentDownload(self):
         """
         Remove this torrent from Real-Debrid downloads.
-        
+
         Deletes the torrent from your Real-Debrid account, freeing up
         space and removing it from your active downloads list.
-        
+
         Note:
             - Requires the torrent to have been added to Real-Debrid first
             - Permanently removes the torrent from your account
             - Cannot be undone - torrent must be re-added if needed again
-            
+
         Example:
             >>> torrent.removeTorrentDownload()
             >>> # Torrent removed from Real-Debrid account
@@ -670,30 +641,30 @@ class TorrentBase(dict[str, object]):
     def downloadToLocal(self, path: str, unpack: bool = True):
         """
         Download the torrent content to local storage.
-        
+
         Downloads files from Real-Debrid to the specified local path.
         If the content is a RAR archive, it can optionally be extracted
         during the download process.
-        
+
         Args:
             path: Local directory path where files should be downloaded
             unpack: Whether to extract RAR archives (default: True)
-            
+
         Note:
             - Requires the torrent to be fully downloaded on Real-Debrid
             - Skips download if files already exist locally
             - Uses unrestricted download links for high-speed transfers
             - Supports automatic RAR extraction with progress tracking
             - Only downloads the first available file/link
-            
+
         Raises:
             ValidationError: If Real-Debrid response is invalid
             OSError: If local file operations fail
-            
+
         Example:
             >>> # Download and extract
             >>> torrent.downloadToLocal("./downloads/movie", unpack=True)
-            >>> 
+            >>>
             >>> # Download RAR only (don't extract)
             >>> torrent.downloadToLocal("./archives", unpack=False)
         """

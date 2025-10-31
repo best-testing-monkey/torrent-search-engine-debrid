@@ -36,7 +36,6 @@ class TorrentProvider:
         if validate:
             self._validate(kwargs)
 
-        self.enabled = kwargs.get('enabled', True)
         self.name = kwargs.get('name')
         self.fullname = kwargs.get('fullname', self.name)
         self.url = kwargs.get('url')

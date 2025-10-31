@@ -1,0 +1,38 @@
+{
+  "enabled": true,
+  "name": "1337x.am",
+  "fullname": "1337x",
+  "url": "https://1337x.torproxy.rent",
+  "urls": [
+    "https://1337x.torproxy.rent",
+    "https://1337x.tounblock.best",
+    "https://1337x.tounblock.info",
+    "https://1337x.ukpass.io",
+    "https://1337x.katunblock.info",
+    "https://1337x.katunblock.site",
+    "https://1337x.st/",
+    "https://x1337x.se/",
+    "https://x1337x.ws/",
+    "https://1337x.unblockit.li/",
+    "https://1337x.unblockninja.com/",
+    "https://x1337x.eu/",
+    "https://ww1.1337x.buzz/",
+    "https://1337x.wtf/",
+  ],
+  "search": "/search/{query}/1/",
+  "list": {
+    "items": "table.table-list > tbody > tr",
+    "item": {
+      "name": "td.name > a:nth-of-type(2) @ text",
+      "info_url": "td.name > a:nth-of-type(2) @ href",
+      "size": "td.size @ text | re: [0-9\\.]+\\s+[A-Z]+",
+      "time": "td:nth-of-type(5) @ text",
+      "seeds": "td.seeds @ text",
+      "leeches": "td.leeches @ text"
+    },
+    "next": ".pagination > ul > li.active + li > a @ href"
+  },
+  "item": {
+    "magnet": "a:contains(Magnet) @ href"
+  }
+}

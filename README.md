@@ -16,7 +16,7 @@ This library requires python 3.5 or higher.
 You can install this library from Github using this command:
 
 ```
-$ pip install git+https://github.com/AlexCovizzi/torrent-search-engine
+$ pip install git+https://github.com/best-testing-monkey/torrent-search-engine-debrid
 ```
 
 ## Example

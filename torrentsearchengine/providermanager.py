@@ -1,6 +1,8 @@
 from typing import List, Union, Optional
 import json
 import logging
+
+import json5
 import requests
 from .exceptions import *
 from .torrentprovider import TorrentProvider
@@ -78,12 +80,20 @@ class TorrentProviderManager:
         self._add(provider)
 
     def _add_from_file(self, path: str):
-        try:
-            with open(path, 'r', encoding='utf-8') as f:
-                provider_dict = json.load(f)
-        except json.JSONDecodeError as e:
-            raise ValidationError(e) from e
+        if path.endswith(".json"):
+            try:
+                with open(path, 'r', encoding='utf-8') as f:
+                    provider_dict = json.load(f)
+            except json.JSONDecodeError as e:
+                raise ValidationError(e) from e
+        elif path.endswith(".json5"):
+            try:
+                with open(path, 'r', encoding='utf-8') as f:
+                    provider_dict = json5.load(f)
+            except json.JSONDecodeError as e:
+                raise ValidationError(e) from e
 
+        provider_dict["filepath"] = path
         self._add_from_dict(provider_dict)
 
     def _add_from_url(self, url: str):

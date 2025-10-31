@@ -1,7 +1,7 @@
 import pytest
 import requests
 import os
-from helpers.httpserver import httpserver
+from tests.helpers.httpserver import httpserver
 from torrentsearchengine import *
 
 
@@ -27,7 +27,7 @@ provider_dict = {
         }
     },
     "item": {
-        "link": "a.link @ href"
+        "magnet": "a.link @ href"
     }
 }
 

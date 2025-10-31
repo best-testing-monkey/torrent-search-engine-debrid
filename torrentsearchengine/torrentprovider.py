@@ -9,23 +9,37 @@ from .providervalidator import torrent_provider_validator
 from .exceptions import *
 from .scraper import Scraper
 from .scraper.selector import Selector, NullSelector
-from .torrent import Torrent
-
 
 logger = logging.getLogger(__name__)
 
 
 class TorrentProvider:
 
+    @property
+    def name(self):
+        """Getter for name"""
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
+    def source(self):
+        return self._source
+
+    @source.setter
+    def source(self, value):
+        self._source = value
+
     def __init__(self, validate=True, **kwargs):
         if validate:
             self._validate(kwargs)
 
-        self.enabled = True
-        # extract data
         self.name = kwargs.get('name')
         self.fullname = kwargs.get('fullname', self.name)
         self.url = kwargs.get('url')
+        self.urls = kwargs.get('urls')
 
         list_section = kwargs.get('list', {})
         list_item_section = list_section.get('item', {})
@@ -69,6 +83,9 @@ class TorrentProvider:
             NotSupportedError - The category is not supported.
         """
 
+        if not self.enabled:
+            raise RequestError(f"Provider {self.name} not enabled")
+
         if timeout is not None:
             start_time = time.time()
             elapsed_time = 0
@@ -86,8 +103,27 @@ class TorrentProvider:
             else:
                 current_timeout = None
 
-            response = self.fetch(path, headers=self._headers,
-                                  timeout=current_timeout)
+            response = None
+            while response is None:
+                try:
+                    response = self.fetch(path, headers=self._headers,
+                                          timeout=current_timeout)
+                except Exception as e:
+                    logger.debug(f"url problem: {self.url}")
+                if response is None or response == "" or (
+                        response.status_code < 200 or response.status_code >= 300) or "redirect" in response.text:
+                    response = None
+                    if self.urls is not None and len(self.urls) > 1:
+                        # get current undex
+                        curURlIndex = self.urls.index(self.url)
+                        nextUrl = self.urls[curURlIndex + 1]
+                        logger.debug(f"Torrentprovider [{self.name}] url problem: {self.url} (now:{nextUrl})")
+                        self.url = nextUrl
+                        del self.urls[curURlIndex]
+                    else:
+                        self.url = None
+                        self.enabled = False
+                        raise Exception(f"No valid urls for '{self.fullname}' provider (...left)")
 
             try:
                 scraper = Scraper(response.text)
@@ -98,19 +134,13 @@ class TorrentProvider:
                                             limit=remaining)
             for item in items:
                 torrent_data = self._get_torrent_data(item)
-                try:
-                    torrent = Torrent(**torrent_data)
-                    yield torrent
-                except ValueError:
-                    # the torrent is missing some important properties
-                    # in this case we dont return the torrent
-                    pass
+                yield torrent_data
 
             remaining -= len(items)
 
             path = scraper.select_one(self._next_page_selector)
 
-    def fetch_details_data(self, torrent: Torrent, timeout=None) -> dict:
+    def fetch_details_data(self, torrent: dict[str, object], timeout=None) -> dict:
         """
         Fetch torrent details data (e.g link, description, files, ecc)
         from the Torrent's info_url.
@@ -129,7 +159,7 @@ class TorrentProvider:
         """
 
         # retrieve the info page url
-        path = torrent.info_url
+        path = str(torrent['info_url'])
         if not path:
             # basically we return the same data of the torrent
             return {}
@@ -204,7 +234,7 @@ class TorrentProvider:
             category = "all"
         if category not in self._search:
             message = "category '{}' is not supported." \
-                        .format(category)
+                .format(category)
             raise NotSupportedError(message)
         else:
             try:
@@ -212,7 +242,7 @@ class TorrentProvider:
                 path = path.format(query=query)
             except KeyError as e:
                 message = "Can't format {} (query='{}', category='{}')" \
-                        .format(path, query, category)
+                    .format(path, query, category)
                 raise FormatError(message) from e
         return path
 

@@ -109,3 +109,6 @@ venv.bak/
 
 # test
 .pytest_cache/
+
+# project temp files
+rd_downloads.json

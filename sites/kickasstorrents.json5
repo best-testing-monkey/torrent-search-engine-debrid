@@ -1,0 +1,42 @@
+{
+  "enabled": true,
+  "name": "kickasstorrents",
+  "fullname": "kickasstorrents",
+  "url": "https://kickasstorrents.pw/",
+  "urls": [
+	"https://kickasstorrents.pw/",
+	"https://kickass.cm/",
+	"https://kickass.sx/",
+	"https://kick4ss.com",
+	"https://kickasshydra.net",
+	"https://kickasst.net",
+	"https://kickasstorrents.id",
+	"https://thekat.cc",
+	"https://kickass2.fun",
+	"https://kickass2.xyz",
+	"https://thekat.info",
+	"https://kickass.cm",
+	"https://kickass.one",
+	"https://kickass.torrentsbay.org"
+  ],
+  "search": "/usearch/{query}/",
+  "whitespace": "-",
+  "headers": {
+    "Accept": "*/*;"
+  },
+  "list": {
+    "items": "table#searchResult > tbody > tr",
+    "items": "#searchResult > tbody > tr",
+    "next": "#searchResult > tbody:nth-child(2) > tr:last-of-type > td:nth-child(1) > a:nth-child(3)",
+    "item": {
+      "title": "td:nth-child(2) > a:nth-child(1) @ text",
+      "url": "td:nth-child(2) > a:nth-child(1) @ href",
+      "size": "td:nth-child(5) @ text",
+      "time": "td:nth-child(3)",
+      "seeds": "td:nth-child(6) @ text | re: [0-9]+",
+      "leechers": "td:nth-child(7) @ text | re: [0-9]+",
+      "magnet": "td:nth-child(4) > nobr:nth-child(1) > a:nth-child(1) @ href",
+      "name": "td:nth-child(8) > a:nth-child(1) @ text"
+    }
+  }
+}

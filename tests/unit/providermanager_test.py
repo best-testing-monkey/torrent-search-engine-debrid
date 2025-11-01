@@ -1,8 +1,7 @@
 import pytest
 import os
-import requests
 from torrentsearchengine import TorrentProvider, ValidationError, RequestError
-from torrentsearchengine.providermanager import TorrentProviderManager
+from torrentsearchengine.util.providermanager import TorrentProviderManager
 
 
 def test_add_should_add_the_provider_passed_as_argument():

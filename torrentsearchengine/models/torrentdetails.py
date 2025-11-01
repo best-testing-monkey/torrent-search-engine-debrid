@@ -1,4 +1,4 @@
-from .torrentbase import TorrentBase
+from torrentsearchengine.models.torrentbase import TorrentBase
 
 
 # TorrentDetails has the same data as TorrentBase and some more data

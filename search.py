@@ -45,7 +45,7 @@ import os
 import time
 from typing import List
 
-from rd_api_py.rdapi import RD
+from torrent_search.rd_api_py import RD
 from torrent_search.torrentsearchengine.searchengine import TorrentSearchEngine
 from torrent_search.torrentsearchengine.torrentbase import TorrentBase
 from torrent_search.util.background import WorkerGovernor

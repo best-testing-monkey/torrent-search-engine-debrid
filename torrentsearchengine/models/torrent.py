@@ -1,5 +1,4 @@
-from .utils import simple_hash
-from .torrentbase import TorrentBase
+from torrentsearchengine.models.torrentbase import TorrentBase
 from .torrentdetails import TorrentDetails
 
 

@@ -3,9 +3,8 @@ import json
 import logging
 
 import json5
-import requests
 from .exceptions import *
-from .torrentprovider import TorrentProvider
+from torrentsearchengine.models.torrentprovider import TorrentProvider
 
 
 logger = logging.getLogger(__name__)

@@ -4,14 +4,14 @@ Torrent Search Engine Package
 This package provides functionality for searching torrents across multiple providers.
 """
 
-from .torrentprovider import TorrentProvider
-from .exceptions import (
+from torrentsearchengine.models.torrentprovider import TorrentProvider
+from torrentsearchengine.util.exceptions import (
     RequestError, ValidationError, Timeout, ParseError, 
     FormatError, NotSupportedError
 )
-from .providermanager import TorrentProviderManager as ProviderManager
+from torrentsearchengine.util.providermanager import TorrentProviderManager as ProviderManager
 from .searchengine import TorrentSearchEngine as SearchEngine
-from .result import TorrentResult as Result
+from torrentsearchengine.models.result import TorrentResult as Result
 
 __all__ = [
     'TorrentProvider',

@@ -1,7 +1,7 @@
 import logging
 import time
 
-from rd_api_py.rdapi import RD
+from torrent_search.rd_api_py import RD
 from torrentsearchengine.searchengine import TorrentSearchEngine
 
 RD = RD()

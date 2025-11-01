@@ -51,24 +51,20 @@ Author: torrent-search-engine-debrid project
 License: See project LICENSE file
 """
 
-import json
-import logging
 import os
 import queue
 import time
 from concurrent.futures import ThreadPoolExecutor
-from json import JSONDecodeError
-from os import path
 from threading import current_thread
 from typing import Any
 from typing import List, Union, Optional
 
-from .debrid.options import DebridOptions
-from .providermanager import TorrentProviderManager
-from .result import *
-from .torrentprovider import TorrentProvider
-from rd_api_py.rdapi import RD as RealDebrid
-from .torrentbase import TorrentBase
+from torrentsearchengine.models.debridOptions import DebridOptions
+from torrentsearchengine.util.providermanager import TorrentProviderManager
+from torrentsearchengine.models.torrentResult import *
+from torrentsearchengine.models.torrentprovider import TorrentProvider
+from rd_api_py import RD as RealDebrid
+from torrentsearchengine.models.torrentbase import TorrentBase
 
 logger = logging.getLogger(__name__)
 
